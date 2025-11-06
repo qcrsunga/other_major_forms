@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Booking - Malibiran Medical Clinic</title>
+    <style>
+        :root {
+            --color-primary: #36A9E1;
+            --color-primary-dark: #277393;
+            --color-primary-light: #99D0F1;
+            --color-accent: #189AB4;
+            --color-white: #ffffff;
+            --color-black: #222222;
+            --color-gray-light: #f5f5f5;
+            --color-gray: #e0e0e0;
+            --color-gray-dark: #757575;
+            --color-success: #4caf50;
+            --color-warning: #ff9800;
+            --color-danger: #f44336;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --radius: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--color-white);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .form-header {
+            background: var(--color-primary);
+            color: var(--color-white);
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .form-header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .form-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .staff-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        
+        .form-body {
+            padding: 40px;
+        }
+        
+        .form-section {
+            margin-bottom: 32px;
+        }
+        
+        .form-section h2 {
+            font-size: 18px;
+            color: var(--color-primary-dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--color-gray);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--color-black);
+            font-size: 14px;
+        }
+        
+        label .required {
+            color: var(--color-danger);
+            margin-left: 2px;
+        }
+        
+        input, select, textarea {
+            padding: 12px;
+            border: 1px solid var(--color-gray);
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-family: var(--font-family);
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(54, 169, 225, 0.1);
+        }
+        
+        input.valid {
+            border-color: var(--color-success);
+        }
+        
+        input.invalid, select.invalid, textarea.invalid {
+            border-color: var(--color-danger);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .error-message {
+            color: var(--color-danger);
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .success-message {
+            color: var(--color-success);
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: var(--color-gray-dark);
+            margin-top: 4px;
+        }
+        
+        .calculated-field {
+            background-color: var(--color-gray-light);
+            cursor: not-allowed;
+        }
+        
+        .autocomplete {
+            position: relative;
+        }
+        
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid var(--color-gray);
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background: var(--color-white);
+            border-radius: 0 0 var(--radius) var(--radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .autocomplete-items.show {
+            display: block;
+        }
+        
+        .autocomplete-item {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--color-gray-light);
+        }
+        
+        .autocomplete-item:hover {
+            background-color: var(--color-primary-light);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 2px solid var(--color-gray);
+        }
+        
+        .btn {
+            padding: 12px 32px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--color-primary);
+            color: var(--color-white);
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(54, 169, 225, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--color-gray);
+            color: var(--color-black);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--color-gray-dark);
+            color: var(--color-white);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .alert {
+            padding: 16px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+        
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
+        
+        @media (max-width: 768px) {
+            .form-body {
+                padding: 20px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h1>Appointment Booking</h1>
+            <p>Malibiran Medical Clinic - Schedule Patient Appointment</p>
+            <span class="staff-badge">👤 Clerk / Staff Use Only</span>
+        </div>
+        
+        <div class="form-body">
+            <div id="alertContainer"></div>
+            
+            <form id="appointmentForm">
+                <!-- Appointment Information (Based on ERD: Appointment Table) -->
+                <div class="form-section">
+                    <h2>Appointment Information</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appointmentId">Appointment ID</label>
+                            <input type="text" id="appointmentId" name="appointment_id" value="APT-2025-101" readonly class="calculated-field">
+                            <span class="help-text">Auto-generated (Primary Key)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Patient Selection (Foreign Key: patient_id) -->
+                <div class="form-section">
+                    <h2>Patient Information</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="patientSearch">Search Patient <span class="required">*</span></label>
+                            <div class="autocomplete">
+                                <input type="text" id="patientSearch" placeholder="Type patient name or ID..." required>
+                                <div class="autocomplete-items" id="autocompleteList"></div>
+                            </div>
+                            <span class="error-message" id="patientError">Please select a patient</span>
+                            <span class="help-text">Start typing to search for existing patients</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patientId">Patient ID</label>
+                            <input type="text" id="patientId" name="patient_id" readonly class="calculated-field">
+                            <span class="help-text">Foreign Key to Patient table</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="patientName">Patient Name</label>
+                            <input type="text" id="patientName" readonly class="calculated-field">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Staff Selection (Foreign Key: staff_id) -->
+                <div class="form-section">
+                    <h2>Assign Doctor</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="staffId">Select Doctor <span class="required">*</span></label>
+                            <select id="staffId" name="staff_id" required>
+                                <option value="">Choose a doctor</option>
+                                <option value="STF-001">Dr. Mateo Dela Cruz - General Medicine</option>
+                                <option value="STF-002">Dr. Sofia Bautista - Pediatrics</option>
+                                <option value="STF-003">Dr. Carlos Reyes - Internal Medicine</option>
+                                <option value="STF-004">Dr. Ana Santos - OB-GYN</option>
+                            </select>
+                            <span class="error-message" id="staffError">Please select a doctor</span>
+                            <span class="help-text">Foreign Key to Staff table</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Schedule Details (appointment_date, appointment_time) -->
+                <div class="form-section">
+                    <h2>Schedule Details</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appointmentDate">Appointment Date <span class="required">*</span></label>
+                            <input type="date" id="appointmentDate" name="appointment_date" required>
+                            <span class="error-message" id="dateError">Please select a future weekday</span>
+                            <span class="help-text">Clinic closed on weekends</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="appointmentTime">Appointment Time <span class="required">*</span></label>
+                            <input type="time" id="appointmentTime" name="appointment_time" min="08:00" max="17:00" required>
+                            <span class="error-message" id="timeError">Clinic hours: 8:00 AM - 5:00 PM</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Status Field -->
+                <div class="form-section">
+                    <h2>Appointment Status</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status" name="status">
+                                <option value="Scheduled" selected>Scheduled</option>
+                                <option value="Confirmed">Confirmed</option>
+                                <option value="Cancelled">Cancelled</option>
+                                <option value="Completed">Completed</option>
+                                <option value="No-Show">No-Show</option>
+                            </select>
+                            <span class="help-text">Default: Scheduled (can be updated later)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Book Appointment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Sample patient data
+        const patients = [
+            { id: 'PAT-2025-001', name: 'Klarisse Mendoza' },
+            { id: 'PAT-2025-002', name: 'Ramon Eusebio' },
+            { id: 'PAT-2025-003', name: 'Maria Dela Cruz' },
+            { id: 'PAT-2025-004', name: 'Jose Santos' },
+            { id: 'PAT-2025-005', name: 'Ana Reyes' }
+        ];
+        
+        // Set min date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('appointmentDate').min = tomorrow.toISOString().split('T')[0];
+        
+        // Patient autocomplete
+        const patientSearch = document.getElementById('patientSearch');
+        const autocompleteList = document.getElementById('autocompleteList');
+        
+        patientSearch.addEventListener('input', function() {
+            const value = this.value.toLowerCase();
+            autocompleteList.innerHTML = '';
+            
+            if (value.length < 2) {
+                autocompleteList.classList.remove('show');
+                return;
+            }
+            
+            const filtered = patients.filter(p => 
+                p.name.toLowerCase().includes(value) || p.id.toLowerCase().includes(value)
+            );
+            
+            if (filtered.length > 0) {
+                filtered.forEach(patient => {
+                    const div = document.createElement('div');
+                    div.className = 'autocomplete-item';
+                    div.textContent = `${patient.name} (${patient.id})`;
+                    div.addEventListener('click', function() {
+                        document.getElementById('patientName').value = patient.name;
+                        document.getElementById('patientId').value = patient.id;
+                        patientSearch.value = patient.name;
+                        autocompleteList.classList.remove('show');
+                        validateForm();
+                    });
+                    autocompleteList.appendChild(div);
+                });
+                autocompleteList.classList.add('show');
+            } else {
+                autocompleteList.classList.remove('show');
+            }
+        });
+        
+        // Date validation (no weekends)
+        document.getElementById('appointmentDate').addEventListener('change', function() {
+            const date = new Date(this.value);
+            const day = date.getDay();
+            
+            if (day === 0 || day === 6) {
+                this.classList.add('invalid');
+                document.getElementById('dateError').classList.add('show');
+            } else {
+                this.classList.remove('invalid');
+                document.getElementById('dateError').classList.remove('show');
+            }
+            validateForm();
+        });
+        
+        // Form validation
+        const form = document.getElementById('appointmentForm');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        function validateForm() {
+            const patientSelected = document.getElementById('patientId').value !== '';
+            const staffSelected = document.getElementById('staffId').value !== '';
+            const dateValid = document.getElementById('appointmentDate').value !== '' && 
+                             !document.getElementById('appointmentDate').classList.contains('invalid');
+            const timeValid = document.getElementById('appointmentTime').value !== '';
+            
+            const isValid = patientSelected && staffSelected && dateValid && timeValid;
+            
+            submitBtn.disabled = !isValid;
+        }
+        
+        // Add change listeners
+        ['staffId', 'appointmentDate', 'appointmentTime'].forEach(id => {
+            document.getElementById(id).addEventListener('change', validateForm);
+        });
+        
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Booking...';
+            
+            setTimeout(() => {
+                showAlert('Appointment booked successfully! Appointment ID: APT-2025-101', 'success');
+                submitBtn.textContent = 'Book Appointment';
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }, 1500);
+        });
+        
+        // Cancel button
+        document.getElementById('cancelBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to cancel? All entered data will be lost.')) {
+                window.location.href = 'index.html';
+            }
+        });
+        
+        // Alert function
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} show`;
+            alert.textContent = message;
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
