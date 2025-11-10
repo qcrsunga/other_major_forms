@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Reorder Alerts - Mailbaran Medical Clinic</title>
+    <style>
+        :root {
+            --primary-color: #2c7fb8;
+            --secondary-color: #7fcdbb;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #757575;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #6bbeea;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .form-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+        }
+        
+        .form-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .form-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .form-body {
+            padding: 20px;
+        }
+        
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        
+        .form-section:last-of-type {
+            border-bottom: none;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            flex: 1 0 300px;
+            margin-right: 15px;
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .required::after {
+            content: " *";
+            color: var(--error-color);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(44, 127, 184, 0.2);
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .helper-text {
+            color: var(--dark-gray);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin-right: 10px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--medium-gray);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+        
+        .radio-option input {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .slider-container {
+            margin-top: 10px;
+        }
+        
+        .slider-value {
+            text-align: center;
+            margin-top: 5px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-clear {
+            background-color: var(--medium-gray);
+            color: #333;
+        }
+        
+        .btn-clear:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            background-color: #246a9c;
+        }
+        
+        .success-message {
+            background-color: var(--success-color);
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .alert-preview {
+            background-color: var(--light-gray);
+            border-left: 4px solid var(--warning-color);
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .alert-preview h3 {
+            color: var(--warning-color);
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            .form-group {
+                flex: 1 0 100%;
+                margin-right: 0;
+            }
+            
+            .form-buttons {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-header">
+            <h1>Generate Reorder Alerts</h1>
+            <p>Mailbaran Medical Clinic - Inventory Management</p>
+        </div>
+        
+        <div class="form-body">
+            <form id="reorderForm">
+                <!-- Alert Information Section -->
+                <div class="form-section">
+                    <h2 class="section-title">Alert Information</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="alertId" class="required">Alert ID</label>
+                            <input type="text" id="alertId" name="alertId" value="REO-2025-001" readonly>
+                            <div class="helper-text">Auto-generated (Primary Key)</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="alertDate" class="required">Alert Date</label>
+                            <input type="date" id="alertDate" name="alertDate" required>
+                            <div class="error-message" id="alertDateError">Please select a valid alert date</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="itemCategory" class="required">Item Category</label>
+                            <select id="itemCategory" name="itemCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="medication">Medication</option>
+                                <option value="medical_supplies">Medical Supplies</option>
+                                <option value="lab_equipment">Lab Equipment</option>
+                                <option value="protective_gear">Protective Gear</option>
+                                <option value="office_supplies">Office Supplies</option>
+                            </select>
+                            <div class="error-message" id="itemCategoryError">Please select an item category</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="itemName" class="required">Item Name</label>
+                            <input type="text" id="itemName" name="itemName" placeholder="Enter item name" required>
+                            <div class="error-message" id="itemNameError">Please enter a valid item name</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inventory Details Section -->
+                <div class="form-section">
+                    <h2 class="section-title">Inventory Details</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="currentStock" class="required">Current Stock</label>
+                            <input type="number" id="currentStock" name="currentStock" min="0" placeholder="Current quantity" required>
+                            <div class="error-message" id="currentStockError">Please enter a valid stock quantity</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="minimumStock" class="required">Minimum Stock Level</label>
+                            <input type="number" id="minimumStock" name="minimumStock" min="1" placeholder="Reorder threshold" required>
+                            <div class="error-message" id="minimumStockError">Please enter a valid minimum stock level</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reorderQuantity" class="required">Reorder Quantity</label>
+                            <input type="number" id="reorderQuantity" name="reorderQuantity" min="1" placeholder="Quantity to order" required>
+                            <div class="error-message" id="reorderQuantityError">Please enter a valid reorder quantity</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="supplier" class="required">Preferred Supplier</label>
+                            <select id="supplier" name="supplier" required>
+                                <option value="">Select Supplier</option>
+                                <option value="medsupply_inc">MedSupply Inc.</option>
+                                <option value="pharm_dist">Pharmaceutical Distributors</option>
+                                <option value="global_med">Global Medical Supplies</option>
+                                <option value="local_vendor">Local Vendor</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <div class="error-message" id="supplierError">Please select a supplier</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="urgencyLevel" class="required">Urgency Level</label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="urgencyLow" name="urgencyLevel" value="low" required>
+                                    <label for="urgencyLow">Low</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="urgencyMedium" name="urgencyLevel" value="medium">
+                                    <label for="urgencyMedium">Medium</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="urgencyHigh" name="urgencyLevel" value="high">
+                                    <label for="urgencyHigh">High</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="urgencyCritical" name="urgencyLevel" value="critical">
+                                    <label for="urgencyCritical">Critical</label>
+                                </div>
+                            </div>
+                            <div class="error-message" id="urgencyLevelError">Please select an urgency level</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="estimatedDelivery">Estimated Delivery (days)</label>
+                            <div class="slider-container">
+                                <input type="range" id="estimatedDelivery" name="estimatedDelivery" min="1" max="30" value="7" class="slider">
+                                <div class="slider-value"><span id="deliveryValue">7</span> days</div>
+                            </div>
+                            <div class="helper-text">Slide to adjust estimated delivery time</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alert Settings Section -->
+                <div class="form-section">
+                    <h2 class="section-title">Alert Settings</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Send Email Notifications</label>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="emailNotifications" name="emailNotifications" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Email alerts to purchasing department</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Auto-Generate Purchase Order</label>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="autoGeneratePO" name="autoGeneratePO">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Automatically create purchase order</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="notificationFrequency">Notification Frequency</label>
+                            <select id="notificationFrequency" name="notificationFrequency">
+                                <option value="once">Once Only</option>
+                                <option value="daily" selected>Daily Until Resolved</option>
+                                <option value="weekly">Weekly Until Resolved</option>
+                            </select>
+                            <div class="helper-text">How often to send reminder alerts</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="additionalRecipients">Additional Recipients</label>
+                            <input type="text" id="additionalRecipients" name="additionalRecipients" placeholder="Email addresses (comma separated)">
+                            <div class="helper-text">Optional: Add extra email recipients</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="notes">Additional Notes</label>
+                            <textarea id="notes" name="notes" rows="3" placeholder="Any additional information about this reorder alert"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="confirmAlert" name="confirmAlert" required>
+                            <label for="confirmAlert" class="required">I confirm that this reorder alert information is accurate</label>
+                        </div>
+                        <div class="error-message" id="confirmAlertError">Please confirm the alert information</div>
+                    </div>
+                </div>
+                
+                <!-- Alert Preview -->
+                <div class="alert-preview" id="alertPreview">
+                    <h3>Alert Preview</h3>
+                    <p><strong>Item:</strong> <span id="previewItemName">-</span></p>
+                    <p><strong>Current Stock:</strong> <span id="previewCurrentStock">-</span></p>
+                    <p><strong>Reorder Quantity:</strong> <span id="previewReorderQuantity">-</span></p>
+                    <p><strong>Urgency:</strong> <span id="previewUrgency">-</span></p>
+                </div>
+                
+                <!-- Hidden Fields -->
+                <input type="hidden" id="generatedBy" name="generatedBy" value="ADMIN001">
+                <input type="hidden" id="timestamp" name="timestamp">
+                
+                <!-- Form Buttons -->
+                <div class="form-buttons">
+                    <button type="button" class="btn-clear" id="clearButton">Clear Form</button>
+                    <button type="submit" class="btn-submit">Generate Alert</button>
+                </div>
+                
+                <!-- Success Message -->
+                <div class="success-message" id="successMessage">
+                    Reorder alert successfully generated! Notifications have been sent to the appropriate departments.
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date as default for alert date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('alertDate').value = today;
+            
+            // Set timestamp
+            document.getElementById('timestamp').value = new Date().toISOString();
+            
+            // Update slider value display
+            const deliverySlider = document.getElementById('estimatedDelivery');
+            const deliveryValue = document.getElementById('deliveryValue');
+            
+            deliverySlider.addEventListener('input', function() {
+                deliveryValue.textContent = this.value;
+                updateAlertPreview();
+            });
+            
+            // Update alert preview when form values change
+            const formInputs = document.querySelectorAll('#reorderForm input, #reorderForm select');
+            formInputs.forEach(input => {
+                input.addEventListener('change', updateAlertPreview);
+                input.addEventListener('keyup', updateAlertPreview);
+            });
+            
+            // Form validation and submission
+            const form = document.getElementById('reorderForm');
+            const clearButton = document.getElementById('clearButton');
+            
+            // Clear form function
+            clearButton.addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear the form? All entered data will be lost.')) {
+                    form.reset();
+                    // Reset the alert date to today
+                    document.getElementById('alertDate').value = today;
+                    // Reset timestamp
+                    document.getElementById('timestamp').value = new Date().toISOString();
+                    // Reset slider display
+                    deliveryValue.textContent = deliverySlider.value;
+                    // Hide any visible error messages
+                    const errorMessages = document.querySelectorAll('.error-message');
+                    errorMessages.forEach(msg => msg.style.display = 'none');
+                    // Hide success message and alert preview
+                    document.getElementById('successMessage').style.display = 'none';
+                    document.getElementById('alertPreview').style.display = 'none';
+                }
+            });
+            
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Reset previous error messages
+                const errorMessages = document.querySelectorAll('.error-message');
+                errorMessages.forEach(msg => msg.style.display = 'none');
+                
+                let isValid = true;
+                
+                // Validate required fields
+                const requiredFields = form.querySelectorAll('[required]');
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        const errorId = field.id + 'Error';
+                        const errorElement = document.getElementById(errorId);
+                        if (errorElement) {
+                            errorElement.style.display = 'block';
+                        }
+                    }
+                });
+                
+                // Validate numeric fields
+                const currentStock = document.getElementById('currentStock');
+                const minimumStock = document.getElementById('minimumStock');
+                const reorderQuantity = document.getElementById('reorderQuantity');
+                
+                if (currentStock.value && parseInt(currentStock.value) < 0) {
+                    isValid = false;
+                    document.getElementById('currentStockError').textContent = 'Current stock cannot be negative';
+                    document.getElementById('currentStockError').style.display = 'block';
+                }
+                
+                if (minimumStock.value && parseInt(minimumStock.value) <= 0) {
+                    isValid = false;
+                    document.getElementById('minimumStockError').textContent = 'Minimum stock must be greater than 0';
+                    document.getElementById('minimumStockError').style.display = 'block';
+                }
+                
+                if (reorderQuantity.value && parseInt(reorderQuantity.value) <= 0) {
+                    isValid = false;
+                    document.getElementById('reorderQuantityError').textContent = 'Reorder quantity must be greater than 0';
+                    document.getElementById('reorderQuantityError').style.display = 'block';
+                }
+                
+                // Validate alert date (cannot be in the past)
+                const alertDate = document.getElementById('alertDate').value;
+                if (alertDate < today) {
+                    isValid = false;
+                    document.getElementById('alertDateError').textContent = 'Alert date cannot be in the past';
+                    document.getElementById('alertDateError').style.display = 'block';
+                }
+                
+                if (isValid) {
+                    // In a real application, you would send the data to the server here
+                    // For this demo, we'll just show a success message
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Scroll to the success message
+                    document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Reset form after 3 seconds
+                    setTimeout(() => {
+                        form.reset();
+                        document.getElementById('alertDate').value = today;
+                        document.getElementById('timestamp').value = new Date().toISOString();
+                        deliveryValue.textContent = deliverySlider.value;
+                        document.getElementById('successMessage').style.display = 'none';
+                        document.getElementById('alertPreview').style.display = 'none';
+                    }, 3000);
+                }
+            });
+            
+            // Real-time validation for numeric fields
+            const numericFields = [currentStock, minimumStock, reorderQuantity];
+            numericFields.forEach(field => {
+                if (field) {
+                    field.addEventListener('input', function() {
+                        if (this.value && parseInt(this.value) < 0) {
+                            const errorId = this.id + 'Error';
+                            document.getElementById(errorId).textContent = 'Value cannot be negative';
+                            document.getElementById(errorId).style.display = 'block';
+                        } else if (this.value && parseInt(this.value) === 0 && this.id !== 'currentStock') {
+                            const errorId = this.id + 'Error';
+                            document.getElementById(errorId).textContent = 'Value must be greater than 0';
+                            document.getElementById(errorId).style.display = 'block';
+                        } else {
+                            const errorId = this.id + 'Error';
+                            document.getElementById(errorId).style.display = 'none';
+                        }
+                        updateAlertPreview();
+                    });
+                }
+            });
+            
+            // Function to update alert preview
+            function updateAlertPreview() {
+                const itemName = document.getElementById('itemName').value || '-';
+                const currentStock = document.getElementById('currentStock').value || '-';
+                const reorderQuantity = document.getElementById('reorderQuantity').value || '-';
+                
+                // Get selected urgency level
+                const urgencyRadios = document.getElementsByName('urgencyLevel');
+                let urgency = '-';
+                for (const radio of urgencyRadios) {
+                    if (radio.checked) {
+                        urgency = radio.value.charAt(0).toUpperCase() + radio.value.slice(1);
+                        break;
+                    }
+                }
+                
+                // Update preview elements
+                document.getElementById('previewItemName').textContent = itemName;
+                document.getElementById('previewCurrentStock').textContent = currentStock;
+                document.getElementById('previewReorderQuantity').textContent = reorderQuantity;
+                document.getElementById('previewUrgency').textContent = urgency;
+                
+                // Show preview if we have at least the item name
+                if (itemName !== '-') {
+                    document.getElementById('alertPreview').style.display = 'block';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
