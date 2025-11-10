@@ -14,6 +14,7 @@
             --error-color: #e74c3c;
             --success-color: #2ecc71;
             --warning-color: #f39c12;
+            --info-color: #3498db;
         }
         
         * {
@@ -126,6 +127,45 @@
             color: var(--dark-gray);
             font-size: 0.85rem;
             margin-top: 5px;
+        }
+        
+        .info-box {
+            background-color: var(--light-gray);
+            border-left: 4px solid var(--info-color);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .calculation-results {
+            background-color: #f0f7ff;
+            border: 1px solid var(--info-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .calculation-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--medium-gray);
+        }
+        
+        .calculation-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .calculation-label {
+            font-weight: 500;
+        }
+        
+        .calculation-value {
+            font-weight: bold;
+            color: var(--primary-color);
         }
         
         .toggle-container {
@@ -350,6 +390,10 @@
                 <div class="form-section">
                     <h2 class="section-title">Inventory Details</h2>
                     
+                    <div class="info-box">
+                        <p><strong>Reorder Point Calculation:</strong> The system automatically calculates the optimal reorder point based on your inventory data.</p>
+                    </div>
+                    
                     <div class="form-row">
                         <div class="form-group">
                             <label for="currentStock" class="required">Current Stock</label>
@@ -358,30 +402,49 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="minimumStock" class="required">Minimum Stock Level</label>
-                            <input type="number" id="minimumStock" name="minimumStock" min="1" placeholder="Reorder threshold" required>
-                            <div class="error-message" id="minimumStockError">Please enter a valid minimum stock level</div>
+                            <label for="dailyUsage" class="required">Average Daily Usage</label>
+                            <input type="number" id="dailyUsage" name="dailyUsage" min="0" step="0.1" placeholder="Units per day" required>
+                            <div class="error-message" id="dailyUsageError">Please enter a valid daily usage</div>
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="reorderQuantity" class="required">Reorder Quantity</label>
-                            <input type="number" id="reorderQuantity" name="reorderQuantity" min="1" placeholder="Quantity to order" required>
-                            <div class="error-message" id="reorderQuantityError">Please enter a valid reorder quantity</div>
+                            <label for="leadTime" class="required">Lead Time (Days)</label>
+                            <input type="number" id="leadTime" name="leadTime" min="1" placeholder="Days to receive new stock" required>
+                            <div class="error-message" id="leadTimeError">Please enter a valid lead time</div>
                         </div>
                         
                         <div class="form-group">
-                            <label for="supplier" class="required">Preferred Supplier</label>
-                            <select id="supplier" name="supplier" required>
-                                <option value="">Select Supplier</option>
-                                <option value="medsupply_inc">MedSupply Inc.</option>
-                                <option value="pharm_dist">Pharmaceutical Distributors</option>
-                                <option value="global_med">Global Medical Supplies</option>
-                                <option value="local_vendor">Local Vendor</option>
-                                <option value="other">Other</option>
-                            </select>
-                            <div class="error-message" id="supplierError">Please select a supplier</div>
+                            <label for="safetyStock" class="required">Safety Stock</label>
+                            <input type="number" id="safetyStock" name="safetyStock" min="0" placeholder="Buffer stock" required>
+                            <div class="helper-text">Extra stock to account for variability</div>
+                            <div class="error-message" id="safetyStockError">Please enter a valid safety stock</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Automatic Calculation Results -->
+                    <div class="calculation-results">
+                        <h3>Automatic Reorder Calculation</h3>
+                        
+                        <div class="calculation-row">
+                            <span class="calculation-label">Reorder Point:</span>
+                            <span class="calculation-value" id="reorderPointValue">-</span>
+                        </div>
+                        
+                        <div class="calculation-row">
+                            <span class="calculation-label">Reorder Quantity:</span>
+                            <span class="calculation-value" id="reorderQuantityValue">-</span>
+                        </div>
+                        
+                        <div class="calculation-row">
+                            <span class="calculation-label">Stock Status:</span>
+                            <span class="calculation-value" id="stockStatusValue">-</span>
+                        </div>
+                        
+                        <div class="calculation-row">
+                            <span class="calculation-label">Days Until Stockout:</span>
+                            <span class="calculation-value" id="daysUntilStockoutValue">-</span>
                         </div>
                     </div>
                     
@@ -489,6 +552,7 @@
                     <h3>Alert Preview</h3>
                     <p><strong>Item:</strong> <span id="previewItemName">-</span></p>
                     <p><strong>Current Stock:</strong> <span id="previewCurrentStock">-</span></p>
+                    <p><strong>Reorder Point:</strong> <span id="previewReorderPoint">-</span></p>
                     <p><strong>Reorder Quantity:</strong> <span id="previewReorderQuantity">-</span></p>
                     <p><strong>Urgency:</strong> <span id="previewUrgency">-</span></p>
                 </div>
@@ -496,6 +560,8 @@
                 <!-- Hidden Fields -->
                 <input type="hidden" id="generatedBy" name="generatedBy" value="ADMIN001">
                 <input type="hidden" id="timestamp" name="timestamp">
+                <input type="hidden" id="calculatedReorderPoint" name="calculatedReorderPoint">
+                <input type="hidden" id="calculatedReorderQuantity" name="calculatedReorderQuantity">
                 
                 <!-- Form Buttons -->
                 <div class="form-buttons">
@@ -529,6 +595,12 @@
                 updateAlertPreview();
             });
             
+            // Calculate reorder point when inventory data changes
+            const calculationInputs = ['currentStock', 'dailyUsage', 'leadTime', 'safetyStock'];
+            calculationInputs.forEach(inputId => {
+                document.getElementById(inputId).addEventListener('input', calculateReorderPoint);
+            });
+            
             // Update alert preview when form values change
             const formInputs = document.querySelectorAll('#reorderForm input, #reorderForm select');
             formInputs.forEach(input => {
@@ -550,6 +622,8 @@
                     document.getElementById('timestamp').value = new Date().toISOString();
                     // Reset slider display
                     deliveryValue.textContent = deliverySlider.value;
+                    // Reset calculation results
+                    resetCalculationResults();
                     // Hide any visible error messages
                     const errorMessages = document.querySelectorAll('.error-message');
                     errorMessages.forEach(msg => msg.style.display = 'none');
@@ -584,8 +658,9 @@
                 
                 // Validate numeric fields
                 const currentStock = document.getElementById('currentStock');
-                const minimumStock = document.getElementById('minimumStock');
-                const reorderQuantity = document.getElementById('reorderQuantity');
+                const dailyUsage = document.getElementById('dailyUsage');
+                const leadTime = document.getElementById('leadTime');
+                const safetyStock = document.getElementById('safetyStock');
                 
                 if (currentStock.value && parseInt(currentStock.value) < 0) {
                     isValid = false;
@@ -593,16 +668,22 @@
                     document.getElementById('currentStockError').style.display = 'block';
                 }
                 
-                if (minimumStock.value && parseInt(minimumStock.value) <= 0) {
+                if (dailyUsage.value && parseFloat(dailyUsage.value) <= 0) {
                     isValid = false;
-                    document.getElementById('minimumStockError').textContent = 'Minimum stock must be greater than 0';
-                    document.getElementById('minimumStockError').style.display = 'block';
+                    document.getElementById('dailyUsageError').textContent = 'Daily usage must be greater than 0';
+                    document.getElementById('dailyUsageError').style.display = 'block';
                 }
                 
-                if (reorderQuantity.value && parseInt(reorderQuantity.value) <= 0) {
+                if (leadTime.value && parseInt(leadTime.value) <= 0) {
                     isValid = false;
-                    document.getElementById('reorderQuantityError').textContent = 'Reorder quantity must be greater than 0';
-                    document.getElementById('reorderQuantityError').style.display = 'block';
+                    document.getElementById('leadTimeError').textContent = 'Lead time must be greater than 0';
+                    document.getElementById('leadTimeError').style.display = 'block';
+                }
+                
+                if (safetyStock.value && parseInt(safetyStock.value) < 0) {
+                    isValid = false;
+                    document.getElementById('safetyStockError').textContent = 'Safety stock cannot be negative';
+                    document.getElementById('safetyStockError').style.display = 'block';
                 }
                 
                 // Validate alert date (cannot be in the past)
@@ -627,6 +708,7 @@
                         document.getElementById('alertDate').value = today;
                         document.getElementById('timestamp').value = new Date().toISOString();
                         deliveryValue.textContent = deliverySlider.value;
+                        resetCalculationResults();
                         document.getElementById('successMessage').style.display = 'none';
                         document.getElementById('alertPreview').style.display = 'none';
                     }, 3000);
@@ -634,15 +716,15 @@
             });
             
             // Real-time validation for numeric fields
-            const numericFields = [currentStock, minimumStock, reorderQuantity];
+            const numericFields = [currentStock, dailyUsage, leadTime, safetyStock];
             numericFields.forEach(field => {
                 if (field) {
                     field.addEventListener('input', function() {
-                        if (this.value && parseInt(this.value) < 0) {
+                        if (this.value && parseInt(this.value) < 0 && this.id !== 'safetyStock') {
                             const errorId = this.id + 'Error';
                             document.getElementById(errorId).textContent = 'Value cannot be negative';
                             document.getElementById(errorId).style.display = 'block';
-                        } else if (this.value && parseInt(this.value) === 0 && this.id !== 'currentStock') {
+                        } else if (this.value && parseInt(this.value) <= 0 && this.id !== 'currentStock' && this.id !== 'safetyStock') {
                             const errorId = this.id + 'Error';
                             document.getElementById(errorId).textContent = 'Value must be greater than 0';
                             document.getElementById(errorId).style.display = 'block';
@@ -650,16 +732,81 @@
                             const errorId = this.id + 'Error';
                             document.getElementById(errorId).style.display = 'none';
                         }
+                        calculateReorderPoint();
                         updateAlertPreview();
                     });
                 }
             });
             
+            // Function to calculate reorder point and quantity
+            function calculateReorderPoint() {
+                const currentStock = parseInt(document.getElementById('currentStock').value) || 0;
+                const dailyUsage = parseFloat(document.getElementById('dailyUsage').value) || 0;
+                const leadTime = parseInt(document.getElementById('leadTime').value) || 0;
+                const safetyStock = parseInt(document.getElementById('safetyStock').value) || 0;
+                
+                // Calculate reorder point: (Lead Time * Daily Usage) + Safety Stock
+                const reorderPoint = Math.ceil((leadTime * dailyUsage) + safetyStock);
+                
+                // Calculate reorder quantity: Typically 1.5x the lead time demand
+                const reorderQuantity = Math.ceil((leadTime * dailyUsage) * 1.5);
+                
+                // Calculate days until stockout
+                let daysUntilStockout = 'N/A';
+                let stockStatus = 'Adequate';
+                let urgencyColor = '#2ecc71'; // Green
+                
+                if (dailyUsage > 0) {
+                    daysUntilStockout = Math.floor(currentStock / dailyUsage);
+                    
+                    if (currentStock <= reorderPoint) {
+                        stockStatus = 'Reorder Needed';
+                        urgencyColor = '#e74c3c'; // Red
+                    } else if (currentStock <= reorderPoint * 1.5) {
+                        stockStatus = 'Monitor Closely';
+                        urgencyColor = '#f39c12'; // Orange
+                    }
+                }
+                
+                // Update calculation results display
+                document.getElementById('reorderPointValue').textContent = reorderPoint;
+                document.getElementById('reorderQuantityValue').textContent = reorderQuantity;
+                document.getElementById('stockStatusValue').textContent = stockStatus;
+                document.getElementById('stockStatusValue').style.color = urgencyColor;
+                document.getElementById('daysUntilStockoutValue').textContent = daysUntilStockout;
+                
+                // Update hidden fields for form submission
+                document.getElementById('calculatedReorderPoint').value = reorderPoint;
+                document.getElementById('calculatedReorderQuantity').value = reorderQuantity;
+                
+                // Auto-set urgency level based on calculation
+                if (currentStock <= reorderPoint) {
+                    document.getElementById('urgencyCritical').checked = true;
+                } else if (currentStock <= reorderPoint * 1.5) {
+                    document.getElementById('urgencyHigh').checked = true;
+                } else if (currentStock <= reorderPoint * 2) {
+                    document.getElementById('urgencyMedium').checked = true;
+                } else {
+                    document.getElementById('urgencyLow').checked = true;
+                }
+            }
+            
+            // Function to reset calculation results
+            function resetCalculationResults() {
+                document.getElementById('reorderPointValue').textContent = '-';
+                document.getElementById('reorderQuantityValue').textContent = '-';
+                document.getElementById('stockStatusValue').textContent = '-';
+                document.getElementById('daysUntilStockoutValue').textContent = '-';
+                document.getElementById('calculatedReorderPoint').value = '';
+                document.getElementById('calculatedReorderQuantity').value = '';
+            }
+            
             // Function to update alert preview
             function updateAlertPreview() {
                 const itemName = document.getElementById('itemName').value || '-';
                 const currentStock = document.getElementById('currentStock').value || '-';
-                const reorderQuantity = document.getElementById('reorderQuantity').value || '-';
+                const reorderPoint = document.getElementById('calculatedReorderPoint').value || '-';
+                const reorderQuantity = document.getElementById('calculatedReorderQuantity').value || '-';
                 
                 // Get selected urgency level
                 const urgencyRadios = document.getElementsByName('urgencyLevel');
@@ -674,6 +821,7 @@
                 // Update preview elements
                 document.getElementById('previewItemName').textContent = itemName;
                 document.getElementById('previewCurrentStock').textContent = currentStock;
+                document.getElementById('previewReorderPoint').textContent = reorderPoint;
                 document.getElementById('previewReorderQuantity').textContent = reorderQuantity;
                 document.getElementById('previewUrgency').textContent = urgency;
                 
